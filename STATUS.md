@@ -20,7 +20,7 @@
 
 ## 初始證據
 
-- Local HEAD: `300ef43ad53cf8696cbc3a65195290b16acf303e`
+- Initial policy evidence commit: `300ef43ad53cf8696cbc3a65195290b16acf303e`
 - `bash scripts/quality-gate.sh`: PASS
 - Notion row: `3e8449ca-65d8-81a1-bf09-eeeebffa33a8`
 
