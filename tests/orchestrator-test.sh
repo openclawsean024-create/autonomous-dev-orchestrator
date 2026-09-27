@@ -524,11 +524,14 @@ assert_eq "1" "$(jq -r '.dispatch.maxChatgptTakeovers' "$config")" "config still
 
 # ------------------------------------------------------------------
 # team-exec.sh actually executes the team and populates the handoff.
-# (Repo fixture lives under .tmp/ inside the workspace so the desktop
-# permission gate does not block git operations under /var/folders.)
+# The repo fixture lives under the test's mktemp -d temp dir so the
+# workspace's .tmp/ directory is not polluted by test artefacts. The
+# trap at the top of this script (`rm -rf "$tmp"`) cleans up the
+# fixture automatically when the test exits.
 # ------------------------------------------------------------------
-mkdir -p .tmp/team-exec-test
-teamx_repo="$root/.tmp/team-exec-test/repo"
+teamx_root_under_tmp="$tmp/team-exec-fixture"
+mkdir -p "$teamx_root_under_tmp"
+teamx_repo="$teamx_root_under_tmp/repo"
 rm -rf "$teamx_repo"
 mkdir -p "$teamx_repo"
 git -C "$teamx_repo" init -q -b main
@@ -544,6 +547,16 @@ echo "evidence" > "$teamx_repo/.agent/evidence/placeholder"
 git -C "$teamx_repo" add .agent/evidence/placeholder
 git -C "$teamx_repo" commit -q -m "coord change"
 
+# Leave working-tree changes uncommitted so team-exec.sh's
+# `git diff --name-only` + `git ls-files --others --exclude-standard`
+# surfaces real changedFiles. Without this the handoff's changedFiles
+# is empty, and verify-team-handoff rejects the cycle (it requires
+# `changedFiles` to be a non-empty array). This mirrors the real
+# run shape: implementation-owner produces working-tree changes during
+# the cycle, not after the cycle.
+echo "owner-edit" >> "$teamx_repo/scripts/sample.sh"
+echo "coord-edit" >> "$teamx_repo/.agent/evidence/placeholder"
+
 teamx_root="$tmp/team-exec"
 mkdir -p "$teamx_root/run"
 
@@ -558,9 +571,9 @@ jq -n '
     singleWriterInvariant: true,
     reviewersAreReadOnly: true,
     roster: [
-      {name:"implementation-owner", writesWorkspace:true, integrationOwnedOnly:false, canPush:false, harness:"minimax-code"},
-      {name:"edge-case-inspector", writesWorkspace:false, integrationOwnedOnly:false, canPush:false, harness:"minimax-code"},
-      {name:"integration-coordinator", writesWorkspace:true, integrationOwnedOnly:true, canPush:false, harness:"minimax-code"}
+      {name:"implementation-owner", enabled:true, writesWorkspace:true, integrationOwnedOnly:false, canPush:false, harness:"minimax-code"},
+      {name:"edge-case-inspector", enabled:true, writesWorkspace:false, integrationOwnedOnly:false, canPush:false, harness:"minimax-code"},
+      {name:"integration-coordinator", enabled:true, writesWorkspace:true, integrationOwnedOnly:true, canPush:false, harness:"minimax-code"}
     ],
     reviewers: [
       {name:"final-reviewer", writesWorkspace:false, isolatedReadOnly:true, harness:"codex"}

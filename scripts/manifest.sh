@@ -12,6 +12,7 @@ Usage:
   $0 create-team-handoff <run-dir> <project-id> <fingerprint> <commit-sha>
   $0 verify <manifest.json>
   $0 verify-team-handoff <handoff.json>
+  $0 verify-team-handoff-cycle <handoff-cycle-N.json>
 EOF
   exit 2
 }
@@ -64,8 +65,13 @@ case "$cmd" in
     ;;
   verify-team-handoff)
     [[ "$#" -eq 1 && -f "$1" ]] || usage
+    bash "$root/scripts/manifest.sh" verify-team-handoff-cycle "$1"
+    ;;
+  verify-team-handoff-cycle)
+    [[ "$#" -eq 1 && -f "$1" ]] || usage
     manifest_version_for_team_evidence="$(jq -r '.developerTeam.manifestVersionForTeamEvidence // 2' "$config")"
     # Contract invariants enforced here:
+    #   - schemaVersion 2 with developerTeam block populated.
     #   - writesWorkspace=true is allowed only for implementation-owner /
     #     integration-coordinator; inspectors and reviewers must be
     #     read-only with no exemption by name.
@@ -75,6 +81,9 @@ case "$cmd" in
     #     can be retrieved without re-running the command.
     #   - Ownership across roles must be disjoint. Inspector must own
     #     nothing. Reviewer ownership (if declared) must be empty.
+    #   - Integration-coordinator may be disabled (enabled: false) or
+    #     entirely absent from the roster; either form is allowed and
+    #     the handoff must still verify.
     jq -e --argjson mfv "$manifest_version_for_team_evidence" '
       def arr_nonempty: type == "array" and length > 0;
       def valid_check:

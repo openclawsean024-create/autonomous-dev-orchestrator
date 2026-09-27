@@ -56,7 +56,7 @@ Developer cycle 由一個 MiniMax Agent Team 共同完成。Team 必須以 disjo
 |---|---:|---:|---:|
 | Implementation owner | 指定 own files，唯一 writer | 否 | 否 |
 | Edge-case / test-coverage inspector | 否（read-only） | 否 | 否 |
-| Integration coordinator | 僅整合 owner 區與前階段 handoff 之後的整合檔 | 是（僅 integration-owned paths） | 否 |
+| Integration coordinator（可選，預設 disabled） | 僅整合 owner 區與前階段 handoff 之後的整合檔 | 是（僅 integration-owned paths） | 否 |
 | MiniMax Integrator（cycle-level） | 是（由 controller 排程） | 由 release gate 規範 | 由 Integrator / release controller 執行 |
 | Codex QA | 否 | 否 | 否 |
 | Final Reviewer | 否 | 否 | 否 |
@@ -65,8 +65,11 @@ Developer cycle 由一個 MiniMax Agent Team 共同完成。Team 必須以 disjo
 
 - roster 與 file ownership 必須由 `config/orchestrator.json` 的 `developerTeam` 定義，並在每次 Developer handoff evidence 內回填。
 - `preferredMode` 為 `concurrent`；若 pinned `mcode` 不支援 Agent Team concurrency，必須 fallback 至 `sequential-focused-subagents`，並在 evidence 內記錄 `fallbackReason` 與 CLI capability probe 結果。
-- integration coordinator 必須等待 implementation owner 與 inspector 標記完成後才整合；整合檔案以 `integration-owned` 路徑白名單為限。
+- integration coordinator 在 `config/orchestrator.json` 內以 `enabled` 旗標表示啟用；預設 `coordinatorDefaultEnabled: false`，跨多模組整合才顯式設為 `true`。roster 中若 `enabled: false`，`team-exec.sh` 必須安全略過並留下 `skipped` 證據；roster 中若整個 role 不存在，亦視為略過。
+- integration coordinator（若啟用）必須等待 implementation owner 與 inspector 標記完成後才整合；整合檔案以 `integration-owned` 路徑白名單為限。
 - implementation owner 與 integration coordinator 不得修改 QA / Final Reviewer 的輸出或 working tree。
+- 每個 implementation cycle 必須寫入不可變的 `handoff-cycle-N.json`；`handoff.json` 為最新一次 cycle 的鏡像，前一輪 evidence 不得被覆寫。
+- changed files evidence 必須包含 tracked、staged 與 untracked 三類檔案，不可只依賴 `git diff`。
 
 ## 5. 驗證命令
 

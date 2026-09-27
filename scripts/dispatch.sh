@@ -90,6 +90,37 @@ fi
 
 team_roster_json="$(jq -c '.developerTeam.roles' "$config")"
 team_reviewers_json="$(jq -c '.developerTeam.reviewers' "$config")"
+# coordinatorOptional / coordinatorDefaultEnabled: if the roster
+# entry declares `enabled`, respect it; otherwise default to disabled
+# so a coordinator is opt-in. This keeps the team contract honest
+# while still allowing cross-module cycles to flip it on per-run via
+# ORCHESTRATOR_COORDINATOR_ENABLED=1.
+coordinator_optional="$(jq -r '.developerTeam.coordinatorOptional // true' "$config")"
+coordinator_default_enabled="$(jq -r '.developerTeam.coordinatorDefaultEnabled // false' "$config")"
+case "${ORCHESTRATOR_COORDINATOR_ENABLED:-auto}" in
+  1|true)  coordinator_enabled_runtime="true" ;;
+  0|false) coordinator_enabled_runtime="false" ;;
+  *)
+    if [[ "$(jq -r '.[] | select(.name == "integration-coordinator") | .enabled // null' <<<"$team_roster_json")" == "true" ]]; then
+      coordinator_enabled_runtime="true"
+    else
+      coordinator_enabled_runtime="$coordinator_default_enabled"
+    fi
+    ;;
+esac
+team_roster_json="$(jq -c \
+  --argjson enabled "$coordinator_enabled_runtime" \
+  'map(if .name == "integration-coordinator" then .enabled = ($enabled == true) else . end)' \
+  <<<"$team_roster_json")"
+
+if [[ "$coordinator_enabled_runtime" == "true" ]]; then
+  coordinator_state="enabled"
+elif [[ "$coordinator_optional" == "true" ]]; then
+  coordinator_state="optional-disabled"
+else
+  echo "dispatch invariant: coordinator required but not enabled" >&2
+  exit 4
+fi
 
 write_team_mode_evidence() {
   local run_dir="$1"
@@ -108,6 +139,8 @@ write_team_mode_evidence() {
     --argjson roster "$team_roster_json" \
     --argjson reviewers "$team_reviewers_json" \
     --argjson reason "$reason_json" \
+    --argjson coordinatorEnabled "$coordinator_enabled_runtime" \
+    --arg coordinatorState "$coordinator_state" \
     '{
       preferredMode: $preferred,
       fallbackMode: $fallback,
@@ -117,7 +150,9 @@ write_team_mode_evidence() {
       singleWriterInvariant: true,
       reviewersAreReadOnly: true,
       roster: $roster,
-      reviewers: $reviewers
+      reviewers: $reviewers,
+      coordinatorEnabled: $coordinatorEnabled,
+      coordinatorState: $coordinatorState
     }' > "$run_dir/team-mode.json"
 }
 
@@ -224,10 +259,16 @@ export ORCHESTRATOR_TEAM_EXECUTION_MODE ORCHESTRATOR_TEAM_FALLBACK_REASON="$fall
 # team that ran this cycle, not just a selected mode. team-exec.sh writes
 # per-role evidence and populates handoff.json with changedFiles,
 # checks (command + exitCode + outputRef), findings, and unresolvedRisks.
+# Each cycle writes an immutable handoff-cycle-N.json; previous cycles
+# must never be overwritten.
 run_team_exec() {
   local cycle="$1"
   local team_log="$evidence/team-exec-cycle-${cycle}.log"
-  if ! bash "$root/scripts/team-exec.sh" "$evidence" "$repo" >"$team_log" 2>&1; then
+  if [[ -f "$evidence/handoff-cycle-${cycle}.json" ]]; then
+    echo "team-exec invariant: handoff-cycle-${cycle}.json already exists; refusing to overwrite" >&2
+    return 1
+  fi
+  if ! bash "$root/scripts/team-exec.sh" "$evidence" "$repo" "$cycle" >"$team_log" 2>&1; then
     echo "team-exec failed for cycle $cycle (see $team_log); treating cycle as failed" >&2
     return 1
   fi
