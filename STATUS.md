@@ -37,3 +37,4 @@
 ## Notion implementation plan
 
 - [Implementation Plan — autonomous-dev-orchestrator MVP](https://app.notion.com/p/3e8449ca65d881cdba8bc7af04d9c848)
+- Heartbeat automation: `notion-autonomous-development-patrol`（每 6 小時，狀態未變時保持安靜）
