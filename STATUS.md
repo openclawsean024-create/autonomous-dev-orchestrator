@@ -36,6 +36,14 @@
 - `scripts/release.sh smoke https://autonomous-dev-orchestrator.vercel.app/health.json 60`: PASS / HTTP 200
 - Vercel GitHub auto-connect 尚未完成：Team Git Scope 未列出 `openclawsean024-create`，因此目前保留 `deploy-cli` fallback；未建立私有鏡像。
 
+## 2026-09-27 首次真實 bounded cycle
+
+- Controller strict-mode bug 已修正於 `d8587fb2914365b52abef9096cade038150a9de6`。
+- 真實 run `run-20260927T114716Z-18939` 已執行 Planner；MiniMax Developer 第一輪遇到 quota/rate-limit，依政策標記 `blocked`。
+- `minimaxCycles=0`、`chatgptTakeovers=0`；quota 未計入需求失敗次數，也未觸發 ChatGPT takeover。
+- MiniMax 留下的未驗收 README 工作區差異已清除；未保留未驗收功能變更。
+- 修正後 `bash scripts/quality-gate.sh`: PASS；production `/health.json`: HTTP 200。
+
 ## 下一步
 
 - 取得 Vercel GitHub repository scope 或設定 `VERCEL_TOKEN`，啟用自動 SHA-bound API deployment。
