@@ -3,6 +3,7 @@
 !.env.example
 .agent/runs/
 .agent/evidence/
+.agent/state/
 logs/
 *.log
 .DS_Store

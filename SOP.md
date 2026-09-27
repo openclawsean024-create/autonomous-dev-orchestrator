@@ -48,3 +48,19 @@
 ## Notion failure handling
 
 Notion read 失敗：不派新任務。Notion write 失敗：保留 release evidence，將 run 標記 `notion_sync_failed`，不得宣告完成。恢復後由 idempotent sync job 補寫，不得建立第二筆 Project row。
+
+## MVP adapter commands
+
+1. Notion connector 先輸出 normalized snapshot JSON，再執行 `scripts/patrol.sh`。
+2. 用 `scripts/fingerprint.sh` 產生 requirement identity。
+3. 用 `scripts/run-registry.sh start` 取得 lease；同一 fingerprint 的 active run 會被拒絕。
+4. 每次實作 blocker 執行 `minimax-failure`；quota / rate-limit 只 resume MiniMax session，不增加 counter。
+5. 第 3 次後執行 `run-registry.sh takeover`，只允許一次 ChatGPT takeover。
+6. 用 `scripts/manifest.sh` 保存並驗證 evidence bundle。
+7. 先執行 `scripts/release.sh preflight`，通過後才允許 push / PR / merge / deploy。
+
+Normalized snapshot 最小格式：
+
+```json
+{"projects":[{"page_id":"...","name":"...","status":"開發中","spec_url":"...","github_url":"...","local_repo":"...","open_issues":0,"prod_http":200}]}
+```

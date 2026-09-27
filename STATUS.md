@@ -2,8 +2,8 @@
 
 - Project: `autonomous-dev-orchestrator`
 - Started: 2026-09-27
-- State: **SPEC / POLICY SCAFFOLD CREATED**
-- Scope: Notion patrol、lease、requirement fingerprint、MiniMax 3-cycle policy、ChatGPT fallback、release gate
+- State: **MVP FOUNDATION IMPLEMENTED**
+- Scope: Notion patrol、lease、requirement fingerprint、MiniMax 3-cycle policy、ChatGPT fallback、evidence manifest、release gate
 - Notion Project DB: [canonical row](https://app.notion.com/p/3e8449ca65d881a1bf09eeeebffa33a8) created; status `規格中`
 - Notion SPEC: [PRD/SPEC v0.1](https://app.notion.com/p/3e8449ca65d88122b2ead1bd9455e0f0)
 - GitHub repository: pending creation / remote attachment
@@ -17,6 +17,8 @@
 - 固化 MiniMax 完整 cycle 三次失敗後才由 ChatGPT 接手。
 - 固化 quota recovery 不計入需求失敗次數。
 - 固化 Notion canonical DB、evidence、三向對齊與 rollback gate。
+- 實作 `patrol.sh`、`run-registry.sh`、`fingerprint.sh`、`manifest.sh`、`release.sh`。
+- 新增 orchestration integration tests；policy 與 integration quality gate PASS。
 
 ## 初始證據
 
@@ -30,3 +32,8 @@
 - 實作 run registry、lease 與 evidence manifest。
 - 將既有 `autonomous-dev-agent/scripts/agent-cycle.sh` 改為可由 controller 呼叫，並修正 developer fallback 計數政策。
 - 接通 GitHub / Vercel release adapter。
+- 建立 scheduler / heartbeat entrypoint。
+
+## Notion implementation plan
+
+- [Implementation Plan — autonomous-dev-orchestrator MVP](https://app.notion.com/p/3e8449ca65d881cdba8bc7af04d9c848)

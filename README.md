@@ -18,6 +18,25 @@ Notion-driven autonomous development controller for Sean's workspace.
 bash scripts/quality-gate.sh
 ```
 
+## MVP 操作入口
+
+將 Notion connector 正規化成 snapshot JSON 後巡視：
+
+```bash
+bash scripts/patrol.sh /absolute/path/to/notion-snapshot.json
+```
+
+建立 requirement fingerprint 與 run lease：
+
+```bash
+FINGERPRINT="$(bash scripts/fingerprint.sh <project-page-id> <spec-revision> <next-action> <open-issues> <ac-hash>)"
+RUN_ID="$(bash scripts/run-registry.sh start <project-page-id> "$FINGERPRINT" /absolute/path/to/repo)"
+```
+
+每個需求的完整 MiniMax cycle 失敗後執行 `minimax-failure`；第三次後才能執行 `takeover`。所有證據完成後用 `manifest.sh verify`，再進入 `release.sh preflight`。
+
+`release.sh` 對 GitHub、Vercel、smoke test 與 rollback 採 fail-closed；缺少 remote、CLI、token 或 required evidence 時會停止，不會宣告成功。
+
 ## 文件
 
 - [`PRD/SPEC.md`](PRD/SPEC.md)：功能需求、AC、ADR

@@ -27,4 +27,5 @@ for key in autoPush autoPullRequest autoMerge autoProductionDeploy; do
 done
 
 bash "$project_root/tests/policy-test.sh"
+bash "$project_root/tests/orchestrator-test.sh"
 echo "quality gate passed"
