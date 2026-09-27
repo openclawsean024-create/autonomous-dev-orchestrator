@@ -14,13 +14,13 @@ Notion-driven autonomous development controller for Sean's workspace.
 
 ## 驗證
 
-Deterministic 流程／政策／狀態轉移檢查：
+Deterministic 流程設定、狀態轉移與 MiniMax fallback policy 的 quality gate：
 
 ```bash
 bash scripts/quality-gate.sh
 ```
 
-Production 60-second 健康 smoke test（部署後對 `https://autonomous-dev-orchestrator.vercel.app/health.json` 反覆要求 HTTP 200，最多 60 秒；fail-closed，不通過即視為 release 失敗）：
+Deploy 後的 production health smoke test（透過 `release.sh` 對目標 URL 進行 60 秒 HTTP smoke）：
 
 ```bash
 bash scripts/release.sh smoke https://autonomous-dev-orchestrator.vercel.app/health.json 60
