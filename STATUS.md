@@ -7,7 +7,7 @@
 - Notion Project DB: [canonical row](https://app.notion.com/p/3e8449ca65d881a1bf09eeeebffa33a8) created; status `開發中`
 - Notion SPEC: [PRD/SPEC v0.1](https://app.notion.com/p/3e8449ca65d88122b2ead1bd9455e0f0)
 - GitHub repository: [public remote](https://github.com/openclawsean024-create/autonomous-dev-orchestrator), `main` pushed and verified
-- Vercel: not configured
+- Vercel: [production](https://autonomous-dev-orchestrator.vercel.app), `/health.json` returns HTTP 200
 
 ## 本次完成
 
@@ -27,11 +27,20 @@
 - `bash scripts/quality-gate.sh`: PASS
 - Notion row: `3e8449ca-65d8-81a1-bf09-eeeebffa33a8`
 
+## 2026-09-27 驗證證據
+
+- Latest GitHub/local HEAD before this status append: `1b0bce4738e9a39d89b7a5e5c0246b9df5aba002`
+- `bash scripts/quality-gate.sh`: PASS
+- `scripts/dispatch.sh --dry-run ...`: PASS；序列為 MiniMax 1 → 2 → 3 → ChatGPT takeover
+- Vercel CLI production deployment: READY；canonical alias `https://autonomous-dev-orchestrator.vercel.app`
+- `scripts/release.sh smoke https://autonomous-dev-orchestrator.vercel.app/health.json 60`: PASS / HTTP 200
+- Vercel GitHub auto-connect 尚未完成：Team Git Scope 未列出 `openclawsean024-create`，因此目前保留 `deploy-cli` fallback；未建立私有鏡像。
+
 ## 下一步
 
-- 實作 Notion patrol adapter 與 idempotent Project DB sync。
-- 接通 Vercel deployment、60 秒 smoke test 與 rollback。
-- 以低風險專案執行完整 dry-run。
+- 取得 Vercel GitHub repository scope 或設定 `VERCEL_TOKEN`，啟用自動 SHA-bound API deployment。
+- 以低風險、非 dry-run 專案執行完整 bounded cycle。
+- 首次 cycle 完成後建立 aligned manifest，執行 release preflight。
 
 ## Notion implementation plan
 
