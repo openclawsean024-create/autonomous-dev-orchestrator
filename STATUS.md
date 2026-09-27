@@ -4,7 +4,7 @@
 - Started: 2026-09-27
 - State: **SPEC / POLICY SCAFFOLD CREATED**
 - Scope: Notion patrol、lease、requirement fingerprint、MiniMax 3-cycle policy、ChatGPT fallback、release gate
-- Notion Project DB: pending initial row sync
+- Notion Project DB: [canonical row](https://app.notion.com/p/3e8449ca65d881a1bf09eeeebffa33a8) created; status `規格中`
 - GitHub repository: pending creation / remote attachment
 - Vercel: not configured
 
@@ -16,6 +16,12 @@
 - 固化 MiniMax 完整 cycle 三次失敗後才由 ChatGPT 接手。
 - 固化 quota recovery 不計入需求失敗次數。
 - 固化 Notion canonical DB、evidence、三向對齊與 rollback gate。
+
+## 初始證據
+
+- Local HEAD: `a674bd1`
+- `bash scripts/quality-gate.sh`: PASS
+- Notion row: `3e8449ca-65d8-81a1-bf09-eeeebffa33a8`
 
 ## 下一步
 
