@@ -36,5 +36,74 @@
     "nonCounting": ["quota", "rate_limit", "transient_network"],
     "blocking": ["auth_or_harness", "spec_ambiguity", "security_risk", "concurrency_conflict"],
     "counting": ["test_failure", "implementation_blocker"]
+  },
+  "developerTeam": {
+    "schemaVersion": 2,
+    "preferredMode": "concurrent",
+    "fallbackMode": "sequential-focused-subagents",
+    "requireFallbackReason": true,
+    "roles": [
+      {
+        "name": "implementation-owner",
+        "writesWorkspace": true,
+        "integrationOwnedOnly": false,
+        "canPush": false,
+        "harness": "minimax-code",
+        "description": "唯一 writer；只寫入 owned paths。"
+      },
+      {
+        "name": "edge-case-inspector",
+        "writesWorkspace": false,
+        "integrationOwnedOnly": false,
+        "canPush": false,
+        "harness": "minimax-code",
+        "description": "read-only；產出 findings、edge-case 與建議測試。"
+      },
+      {
+        "name": "integration-coordinator",
+        "writesWorkspace": true,
+        "integrationOwnedOnly": true,
+        "canPush": false,
+        "harness": "minimax-code",
+        "description": "僅在 owner 與 inspector 完成後整合；只寫入 integration-owned paths。"
+      }
+    ],
+    "reviewers": [
+      {
+        "name": "codex-qa",
+        "writesWorkspace": false,
+        "isolatedReadOnly": true,
+        "harness": "codex"
+      },
+      {
+        "name": "final-reviewer",
+        "writesWorkspace": false,
+        "isolatedReadOnly": true,
+        "harness": "codex"
+      }
+    ],
+    "singleWriterInvariant": true,
+    "disjointOwnershipRequired": true,
+    "reviewersAreReadOnly": true,
+    "maxDisjointOverlap": 0,
+    "manifestVersionForTeamEvidence": 2,
+    "ownership": {
+      "implementation-owner": [
+        "scripts/**",
+        "tests/**",
+        "config/**",
+        "docs/**",
+        "PRD/**"
+      ],
+      "edge-case-inspector": [],
+      "integration-coordinator": [
+        ".agent/evidence/**",
+        ".agent/state/**"
+      ]
+    },
+    "reviewerOwnership": {
+      "codex-qa": [],
+      "final-reviewer": []
+    }
   }
 }
