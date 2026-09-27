@@ -5,7 +5,7 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 owner="${GITHUB_OWNER:-openclawsean024-create}"
 
 usage() {
-  echo "Usage: $0 preflight <manifest.json> | push <repo> <branch> | pr <repo> <branch> | merge <repo> <pr-number> | deploy <repo> <sha> | smoke <url> [seconds] | rollback <deployment>" >&2
+  echo "Usage: $0 preflight <manifest.json> | push <repo> <branch> | pr <repo> <branch> | merge <repo> <pr-number> | deploy <repo> <sha> | deploy-cli <project-dir> <sha> | smoke <url> [seconds] | rollback <deployment>" >&2
   exit 2
 }
 
@@ -45,6 +45,13 @@ case "${1:-}" in
     payload="$(jq -n --arg name "$2" --arg owner "$owner" --arg sha "$3" '{name:$name,target:"production",gitSource:{type:"github",org:$owner,repo:$name,ref:"main",sha:$sha}}')"
     curl -fsS -X POST "https://api.vercel.com/v13/deployments?projectId=${VERCEL_PROJECT_ID}" \
       -H "Authorization: Bearer ${VERCEL_TOKEN}" -H 'Content-Type: application/json' -d "$payload" | jq '{id,url,readyState,gitSource}'
+    ;;
+  deploy-cli)
+    [[ "$#" -eq 3 && -d "$2" ]] || usage
+    command -v npx >/dev/null 2>&1 || { echo "npx is required" >&2; exit 2; }
+    actual_sha="$(git -C "$2" rev-parse HEAD)"
+    [[ "$actual_sha" == "$3" ]] || { echo "deploy-cli refused: project HEAD is ${actual_sha}, expected ${3}" >&2; exit 1; }
+    (cd "$2" && npx --yes vercel deploy --prod --yes --meta "gitCommitSha=${3}" --json) | jq '{id,url,readyState,target,meta}'
     ;;
   smoke)
     [[ "$#" -ge 2 && "$#" -le 3 ]] || usage
