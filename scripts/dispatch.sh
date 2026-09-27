@@ -72,7 +72,11 @@ for cycle in 1 2 3; do
     ORCHESTRATOR_STATE_DIR="$state_dir" bash "$registry" finish "$run_id" completed
     exit 0
   fi
-  if grep -Eiq '(^|[^[:alnum:]])(429|rate[ -]?limit|quota|usage[ -]?limit|credits?[ -]?(exhausted|depleted))([^[:alnum:]]|$)' "$evidence/minimax-cycle-$cycle.log"; then
+  # Agent output can quote repository policy text containing words such as
+  # "quota". Only inspect the tail where the harness reports its terminal
+  # error, otherwise ordinary implementation failures can be misclassified as
+  # non-counting quota failures.
+  if tail -n 80 "$evidence/minimax-cycle-$cycle.log" | grep -Eiq '(^|[^[:alnum:]])(429|rate[ -]?limit|quota|usage[ -]?limit|credits?[ -]?(exhausted|depleted))([^[:alnum:]]|$)'; then
     ORCHESTRATOR_STATE_DIR="$state_dir" bash "$registry" finish "$run_id" blocked
     echo "MiniMax quota/rate-limit exhausted; run blocked without consuming requirement fallback." >&2
     exit 1
