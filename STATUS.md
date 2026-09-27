@@ -4,9 +4,9 @@
 - Started: 2026-09-27
 - State: **MVP FOUNDATION IMPLEMENTED**
 - Scope: Notion patrol、lease、requirement fingerprint、MiniMax 3-cycle policy、ChatGPT fallback、evidence manifest、release gate
-- Notion Project DB: [canonical row](https://app.notion.com/p/3e8449ca65d881a1bf09eeeebffa33a8) created; status `規格中`
+- Notion Project DB: [canonical row](https://app.notion.com/p/3e8449ca65d881a1bf09eeeebffa33a8) created; status `開發中`
 - Notion SPEC: [PRD/SPEC v0.1](https://app.notion.com/p/3e8449ca65d88122b2ead1bd9455e0f0)
-- GitHub repository: pending creation / remote attachment
+- GitHub repository: [public remote](https://github.com/openclawsean024-create/autonomous-dev-orchestrator), `main` pushed and verified
 - Vercel: not configured
 
 ## 本次完成
@@ -29,10 +29,9 @@
 ## 下一步
 
 - 實作 Notion patrol adapter 與 idempotent Project DB sync。
-- 實作 run registry、lease 與 evidence manifest。
 - 將既有 `autonomous-dev-agent/scripts/agent-cycle.sh` 改為可由 controller 呼叫，並修正 developer fallback 計數政策。
-- 接通 GitHub / Vercel release adapter。
-- 建立 scheduler / heartbeat entrypoint。
+- 接通 Vercel deployment、60 秒 smoke test 與 rollback。
+- 以低風險專案執行完整 dry-run。
 
 ## Notion implementation plan
 
