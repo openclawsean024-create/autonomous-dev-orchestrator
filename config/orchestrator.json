@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "project": "autonomous-dev-orchestrator",
+  "notion": {
+    "canonicalProjectDb": "https://app.notion.com/p/31a449ca65d880218cf2d052e5416828",
+    "dataSource": "collection://31a449ca-65d8-802e-ba9a-000b3f29c6b2",
+    "pollInterval": "6h",
+    "terminalStatuses": ["已結案", "已上線"]
+  },
+  "dispatch": {
+    "maxMinimaxImplementationCycles": 3,
+    "maxChatgptTakeovers": 1,
+    "quotaWakeInterval": "2h",
+    "maxQuotaWakeups": 5,
+    "leaseMinutes": 90,
+    "requireFingerprintChangeForRetry": true
+  },
+  "roles": {
+    "planner": {"harness": "codex", "access": "read-only"},
+    "developer": {"primary": "minimax-code", "fallback": "chatgpt", "access": "workspace-write"},
+    "qa": {"harness": "codex", "access": "isolated-read-only"},
+    "integrator": {"harness": "minimax-code", "fallback": "chatgpt", "access": "workspace-write"},
+    "finalReviewer": {"harness": "codex", "access": "read-only"}
+  },
+  "release": {
+    "autoPush": true,
+    "autoPullRequest": true,
+    "autoMerge": true,
+    "autoProductionDeploy": true,
+    "requiredChecks": ["deterministic-quality-gate", "independent-qa", "final-review"],
+    "postDeploySmokeSeconds": 60,
+    "rollbackOnNon200": true,
+    "sensitivePathsRequire": ["risk-approved", "sean-human-review"]
+  },
+  "failureClasses": {
+    "nonCounting": ["quota", "rate_limit", "transient_network"],
+    "blocking": ["auth_or_harness", "spec_ambiguity", "security_risk", "concurrency_conflict"],
+    "counting": ["test_failure", "implementation_blocker"]
+  }
+}

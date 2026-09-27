@@ -1,0 +1,34 @@
+version: 1
+name: notion-driven-autonomous-development
+
+patrol:
+  source: canonical-notion-project-db
+  interval: 6h
+  require_spec: true
+  require_github_url: true
+  require_local_repo: true
+
+dispatch:
+  primary_developer: minimax-code
+  qa: codex-read-only
+  final_reviewer: codex-read-only
+  max_minimax_implementation_cycles: 3
+  max_chatgpt_takeovers: 1
+  quota_wake_interval: 2h
+  max_quota_wakeups: 5
+
+release:
+  auto_push: true
+  auto_pull_request: true
+  auto_merge: true
+  auto_production_deploy: true
+  post_deploy_smoke_seconds: 60
+  rollback_on_non_200: true
+
+stop_conditions:
+  - missing_spec
+  - missing_github_url
+  - missing_local_repo
+  - spec_ambiguity
+  - security_risk_without_approval
+  - notion_sync_failure

@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+.agent/runs/
+.agent/evidence/
+logs/
+*.log
+.DS_Store
