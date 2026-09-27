@@ -5,6 +5,7 @@
 - State: **SPEC / POLICY SCAFFOLD CREATED**
 - Scope: Notion patrol、lease、requirement fingerprint、MiniMax 3-cycle policy、ChatGPT fallback、release gate
 - Notion Project DB: [canonical row](https://app.notion.com/p/3e8449ca65d881a1bf09eeeebffa33a8) created; status `規格中`
+- Notion SPEC: [PRD/SPEC v0.1](https://app.notion.com/p/3e8449ca65d88122b2ead1bd9455e0f0)
 - GitHub repository: pending creation / remote attachment
 - Vercel: not configured
 
@@ -19,7 +20,7 @@
 
 ## 初始證據
 
-- Local HEAD: `a674bd1`
+- Local HEAD: `300ef43ad53cf8696cbc3a65195290b16acf303e`
 - `bash scripts/quality-gate.sh`: PASS
 - Notion row: `3e8449ca-65d8-81a1-bf09-eeeebffa33a8`
 
