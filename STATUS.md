@@ -18,6 +18,7 @@
 - 固化 quota recovery 不計入需求失敗次數。
 - 固化 Notion canonical DB、evidence、三向對齊與 rollback gate。
 - 實作 `patrol.sh`、`run-registry.sh`、`fingerprint.sh`、`manifest.sh`、`release.sh`。
+- 接上 `dispatch.sh` 與既有 `autonomous-dev-agent` cycle；每輪失敗會 checkpoint，三輪後才允許 ChatGPT takeover。
 - 新增 orchestration integration tests；policy 與 integration quality gate PASS。
 
 ## 初始證據
@@ -29,7 +30,6 @@
 ## 下一步
 
 - 實作 Notion patrol adapter 與 idempotent Project DB sync。
-- 將既有 `autonomous-dev-agent/scripts/agent-cycle.sh` 改為可由 controller 呼叫，並修正 developer fallback 計數政策。
 - 接通 Vercel deployment、60 秒 smoke test 與 rollback。
 - 以低風險專案執行完整 dry-run。
 

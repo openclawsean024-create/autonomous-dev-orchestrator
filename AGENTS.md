@@ -56,6 +56,8 @@ bash scripts/quality-gate.sh
 
 此專案目前的 deterministic gate 會驗證流程設定、狀態轉移與 MiniMax 三次 fallback policy。實際目標 repo 的 build、lint、typecheck、unit、integration、E2E 仍由該 repo 自己的 `AGENTS.md` 定義。
 
+`scripts/dispatch.sh` 會呼叫 workspace 的 `autonomous-dev-agent/scripts/agent-cycle.sh`。starter runner 支援 `AGENT_CYCLE_MAX_ITERATIONS`、`AGENT_CYCLE_DEVELOPER_CHAIN` 與 `AGENT_CYCLE_INTEGRATOR_CHAIN` 覆寫，controller 以此強制三輪 MiniMax 後才切換 ChatGPT。
+
 ## 6. 禁止事項
 
 - 不得因 QA 失敗而刪除或弱化測試。

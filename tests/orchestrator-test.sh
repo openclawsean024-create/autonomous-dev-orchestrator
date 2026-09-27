@@ -62,4 +62,8 @@ assert_eq "manifest verified" "$(bash "$root/scripts/manifest.sh" verify "$manif
 
 assert_eq "release preflight passed" "$(bash "$root/scripts/release.sh" preflight "$manifest_path")" "release preflight accepts aligned manifest"
 
+dispatch_output="$(bash "$root/scripts/dispatch.sh" --dry-run page-1 "$fingerprint" "$root" "$root/PRD/SPEC.md")"
+assert_eq "chatgpt-takeover" "$(printf '%s' "$dispatch_output" | jq -r '.sequence[3]')" "dispatch exposes ChatGPT takeover as fourth stage"
+assert_eq "3" "$(printf '%s' "$dispatch_output" | jq -r '.maxMinimaxCycles | tostring')" "dispatch exposes three MiniMax cycles"
+
 echo "orchestrator tests passed"

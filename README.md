@@ -37,6 +37,14 @@ RUN_ID="$(bash scripts/run-registry.sh start <project-page-id> "$FINGERPRINT" /a
 
 `release.sh` 對 GitHub、Vercel、smoke test 與 rollback 採 fail-closed；缺少 remote、CLI、token 或 required evidence 時會停止，不會宣告成功。
 
+執行既有 autonomous-dev-agent cycle：
+
+```bash
+bash scripts/dispatch.sh <project-page-id> <fingerprint> /absolute/path/to/repo /absolute/path/to/GOAL.md
+```
+
+controller 會依序執行 3 個 MiniMax cycle；第三次仍失敗才切到 ChatGPT Developer。每輪失敗會建立 checkpoint commit，讓下一輪維持 clean worktree；quota / rate-limit exhausted 則直接 blocked，不會錯誤觸發 ChatGPT fallback。
+
 ## 文件
 
 - [`PRD/SPEC.md`](PRD/SPEC.md)：功能需求、AC、ADR
