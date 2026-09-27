@@ -25,6 +25,37 @@
 - wakeup 不增加三次 implementation cycle。
 - authentication、permission、harness、程式錯誤不走 quota recovery，直接停下並保留證據。
 
+## MiniMax Agent Team execution
+
+MiniMax Developer cycle 採 team-based 執行，但保留三輪 cycle + ChatGPT takeover、獨立 QA 與 Final Review 的整體政策不變。
+
+1. **Roster（由 `config/orchestrator.json` 的 `developerTeam` 定義）**
+   - implementation owner：唯一 writer，僅寫入自身 owned paths。
+   - edge-case / test-coverage inspector：read-only，產出 findings、edge-case 列表與建議測試；不可修改程式碼。
+   - integration coordinator（可選，預設 `coordinatorDefaultEnabled: false`）：在 `config/orchestrator.json` 內以 `enabled` 旗標表示啟用；跨多模組整合時顯式設為 `true`，其餘情況保留 `false` 或自 roster 移除。略過或 disabled 時，`team-exec.sh` 必須留下 `skipped` 證據。
+
+2. **Execution mode（由 dispatcher capability probe 決定）**
+   - `preferredMode`: `concurrent` — 當 pinned `mcode` 支援 Agent Team / subagent concurrency 時啟用。
+   - `fallbackMode`: `sequential-focused-subagents` — 不支援 concurrency 時，依序執行 owner → inspector → coordinator，並於 evidence 內填寫 `fallbackReason` 與 capability probe 結果。
+   - dispatcher 不得自行發明未經 capability probe 確認的 CLI 旗標。
+
+3. **Ownership 與 single-writer barrier**
+   - owner / inspector / coordinator 各自的 owned paths 必須 disjoint。
+   - coordinator 必須等待 owner 與 inspector 完成標記，才可寫入整合檔。
+   - inspector 與 QA / Final Reviewer 永遠 read-only。
+
+4. **Developer handoff evidence（由 `scripts/manifest.sh` 落盤）**
+   - team roster 與 file ownership
+   - `executionMode` 與 `fallbackReason`（若為 fallback）
+   - changed files（含 tracked、staged、untracked 三類）
+   - 每個 deterministic check 的 exact command、numeric exit code、output reference
+   - owner / inspector / coordinator 的 findings 與 unresolved risks
+   - 每個 implementation cycle 寫入不可變的 `handoff-cycle-N.json`；`handoff.json` 為當下 cycle 的鏡像，前一輪不得覆寫。
+
+5. **QA 與 Final Reviewer 仍為獨立 read-only**
+   - QA / Final Reviewer 不在 team roster 內，不接受 team 的直接寫入。
+   - ChatGPT takeover 後同樣由獨立 QA / Final Reviewer 驗收。
+
 ## Retry / stop policy
 
 - 相同 blocker 未有新 evidence 或 plan revision，不得盲目重試。

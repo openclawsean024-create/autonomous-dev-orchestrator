@@ -1,4 +1,4 @@
-version: 1
+version: 2
 name: notion-driven-autonomous-development
 
 patrol:
@@ -16,6 +16,44 @@ dispatch:
   max_chatgpt_takeovers: 1
   quota_wake_interval: 2h
   max_quota_wakeups: 5
+
+developer_team:
+  schema_version: 2
+  preferred_mode: concurrent
+  fallback_mode: sequential-focused-subagents
+  require_fallback_reason: true
+  single_writer_invariant: true
+  disjoint_ownership_required: true
+  reviewers_are_read_only: true
+  manifest_version_for_team_evidence: 2
+  roles:
+    - name: implementation-owner
+      writes_workspace: true
+      integration_owned_only: false
+      can_push: false
+      harness: minimax-code
+      description: 唯一 writer；僅寫入 owned paths。
+    - name: edge-case-inspector
+      writes_workspace: false
+      integration_owned_only: false
+      can_push: false
+      harness: minimax-code
+      description: read-only；產出 findings、edge-case 與建議測試。
+    - name: integration-coordinator
+      writes_workspace: true
+      integration_owned_only: true
+      can_push: false
+      harness: minimax-code
+      description: 僅在 owner 與 inspector 完成後整合；只寫入 integration-owned paths。
+  reviewers:
+    - name: codex-qa
+      writes_workspace: false
+      isolated_read_only: true
+      harness: codex
+    - name: final-reviewer
+      writes_workspace: false
+      isolated_read_only: true
+      harness: codex
 
 release:
   auto_push: true
