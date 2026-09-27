@@ -48,7 +48,11 @@ checkpoint() {
 }
 
 run_cycle() {
-  local label="$1" developer="$2" integrator="$3" log="$evidence/$label.log" status
+  local label developer integrator log status
+  label="$1"
+  developer="$2"
+  integrator="$3"
+  log="$evidence/$label.log"
   set +e
   (
     AGENT_CYCLE_MAX_ITERATIONS=1 \
